@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  app:
+    build: .
+    ports:
+      - "3001:3000"
+    networks:
+      - app-network
+    depends_on:      
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_app
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: root
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    
+networks:
+  app-network:
+    driver: bridge
